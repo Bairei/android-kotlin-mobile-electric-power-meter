@@ -9,4 +9,9 @@ class MeterRepository(private val meterDao: MeterDao) {
     suspend fun insert(meter: Meter) {
         meterDao.insert(meter)
     }
+
+    @WorkerThread
+    suspend fun delete(meter: Meter) {
+        meterDao.deleteByMeterEntry(meter)
+    }
 }

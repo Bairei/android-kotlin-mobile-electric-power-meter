@@ -53,6 +53,7 @@ abstract class MeterRoomDatabase : RoomDatabase() {
                     MeterRoomDatabase::class.java,
                     "meter_database"
                 )
+                    .addCallback(MeterDatabaseCallback(scope))
                     .build()
                 INSTANCE = instance
                 instance

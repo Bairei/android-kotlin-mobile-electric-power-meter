@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">Mobile Electric Power Meter</string>
+    <string name="measurement_value">Measurement Value (in kW/h*10-1)</string>
+    <string name="measurement_date">Measurement date</string>
+    <string name="measurement_time">Time of measurement</string>
+    <string name="add_new_meter">Add new meter measurement</string>
+    <string name="invalid_not_saved">Given measurement data is invalid and cannot be saved</string>
 </resources>

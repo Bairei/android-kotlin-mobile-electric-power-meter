@@ -1,11 +1,17 @@
 package com.bairei.mobileelectricpowermeter.data
 
+import android.os.Parcelable
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import kotlinx.parcelize.Parcelize
+import java.math.BigDecimal
+import java.math.MathContext
 import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import java.util.*
 
+@Parcelize
 @Entity(tableName = "meter")
 data class Meter(
     @PrimaryKey(autoGenerate = true) @ColumnInfo(name = "id")
@@ -16,4 +22,20 @@ data class Meter(
     val readingDate: LocalDateTime,
     @ColumnInfo(name = "meter_reading")
     val meterReading: Int
-)
+) : Parcelable {
+
+    fun asPrettyString(): String {
+        return "${dateTimeFormatter.format(readingDate)} - ${
+            String.format(
+                "%.1f", meterReading.toBigDecimal(MathContext.DECIMAL64).divide(
+                    BigDecimal.TEN
+                )
+            )
+        }"
+    }
+
+    companion object {
+        private val dateTimeFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm")
+    }
+
+}
