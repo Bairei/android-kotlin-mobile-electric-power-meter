@@ -10,9 +10,12 @@ import android.widget.Button
 import android.widget.EditText
 import androidx.appcompat.app.AppCompatActivity
 import com.bairei.mobileelectricpowermeter.data.Meter
+import java.math.BigDecimal
+import java.math.MathContext
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
+import java.time.format.DateTimeFormatter
 
 class NewMeterEntryActivity : AppCompatActivity() {
 
@@ -22,6 +25,7 @@ class NewMeterEntryActivity : AppCompatActivity() {
 
     private var dateOfMeasurement: LocalDate = LocalDate.now()
     private var timeOfMeasurement: LocalTime = LocalTime.now()
+    private val timeFormatter = DateTimeFormatter.ofPattern("HH:mm")
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -29,6 +33,9 @@ class NewMeterEntryActivity : AppCompatActivity() {
         measurementValueEditText = findViewById(R.id.measurementValueEditText)
         measurementDateEditText = findViewById(R.id.measurementDateEditText)
         measurementTimeEditText = findViewById(R.id.measurementTimeEditText)
+
+        measurementDateEditText.setText(dateOfMeasurement.toString())
+        measurementTimeEditText.setText(timeFormatter.format(timeOfMeasurement))
 
         val onDateSetListener =
             DatePickerDialog.OnDateSetListener { view, year, monthOfYear, dayOfMonth ->
@@ -67,8 +74,12 @@ class NewMeterEntryActivity : AppCompatActivity() {
                 setResult(Activity.RESULT_CANCELED, replyIntent)
             } else {
                 val measurementDate = LocalDateTime.of(dateOfMeasurement, timeOfMeasurement)
-                val measurementValue = measurementValueEditText.text.toString().toInt()
-                val meter = Meter(readingDate = measurementDate, meterReading = measurementValue)
+                val measurementValue =
+                    BigDecimal(measurementValueEditText.text.toString(), MathContext.DECIMAL64)
+                val measurementValueRounded =
+                    measurementValue.multiply(BigDecimal.TEN).intValueExact()
+                val meter =
+                    Meter(readingDate = measurementDate, meterReading = measurementValueRounded)
                 replyIntent.putExtra(EXTRA_REPLY, meter)
                 setResult(RESULT_OK, replyIntent)
             }
