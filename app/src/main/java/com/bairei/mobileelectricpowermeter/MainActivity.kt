@@ -46,8 +46,14 @@ class MainActivity : AppCompatActivity(), MeterListAdapter.ItemRemovedListener {
         super.onActivityResult(requestCode, resultCode, data)
 
         if (requestCode == newMeterActivityRequestCode && resultCode == RESULT_OK) {
-            data?.getParcelableExtra<Meter>(NewMeterEntryActivity.EXTRA_REPLY)?.let {
-                meterViewModel.insert(it)
+            if (data?.getParcelableExtra<Meter>(NewMeterEntryActivity.EXTRA_REPLY) != null) {
+                data.getParcelableExtra<Meter>(NewMeterEntryActivity.EXTRA_REPLY)?.let {
+                    meterViewModel.insert(it)
+                }
+            } else if (data?.getParcelableArrayListExtra<Meter>(NewMeterEntryActivity.MULTIPLE_REPLIES) != null) {
+                val entries =
+                    data.getParcelableArrayListExtra<Meter>(NewMeterEntryActivity.MULTIPLE_REPLIES)
+                entries?.forEach { meterViewModel.insert(it) }
             }
         } else {
             Toast.makeText(applicationContext, R.string.invalid_not_saved, Toast.LENGTH_LONG).show()

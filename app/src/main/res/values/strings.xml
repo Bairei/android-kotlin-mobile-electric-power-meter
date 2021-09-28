@@ -6,4 +6,5 @@
     <string name="add_new_meter">Add new meter measurement</string>
     <string name="invalid_not_saved">Given measurement data is invalid and cannot be saved</string>
     <string name="add_new_meter_title">Add new meter entry</string>
+    <string name="upload_multiple_entries">Upload Multiple Entries</string>
 </resources>

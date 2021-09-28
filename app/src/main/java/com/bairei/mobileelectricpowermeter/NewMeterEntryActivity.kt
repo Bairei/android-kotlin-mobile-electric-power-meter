@@ -6,10 +6,14 @@ import android.app.TimePickerDialog
 import android.content.Intent
 import android.os.Bundle
 import android.text.TextUtils
+import android.util.Log
 import android.widget.Button
 import android.widget.EditText
+import androidx.activity.result.ActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import com.bairei.mobileelectricpowermeter.data.Meter
+import kotlinx.coroutines.launch
 import java.math.BigDecimal
 import java.math.MathContext
 import java.time.LocalDate
@@ -26,6 +30,31 @@ class NewMeterEntryActivity : AppCompatActivity() {
     private var dateOfMeasurement: LocalDate = LocalDate.now()
     private var timeOfMeasurement: LocalTime = LocalTime.now()
     private val timeFormatter = DateTimeFormatter.ofPattern("HH:mm")
+
+    private val rawTimeFormatter = DateTimeFormatter.ofPattern("HHmm")
+    private val rawDateTimeFormatter = DateTimeFormatter.ofPattern("ddMM")
+
+    private val TAG = "NewMeterEntryActivity"
+
+    private val bookmarkImportFilePicker =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
+            run {
+                if (result.resultCode == Activity.RESULT_OK) {
+                    // Using content resolver to get an input stream from selected URI
+                    // See:  https://commonsware.com/blog/2016/03/15/how-consume-content-uri.html
+                    result.data?.data?.let { uri ->
+                        applicationContext?.contentResolver?.openInputStream(uri)
+                            .use { inputStream ->
+                                val builder = StringBuilder()
+                                inputStream?.bufferedReader()?.use {
+                                    builder.append(it.readText())
+                                    parseEntities(builder.toString())
+                                }
+                            }
+                    }
+                }
+            }
+        }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -85,6 +114,16 @@ class NewMeterEntryActivity : AppCompatActivity() {
             }
             finish()
         }
+
+        val uploadMultipleEntriesButton = findViewById<Button>(R.id.uploadMultipleEntriesButton)
+        uploadMultipleEntriesButton.setOnClickListener {
+            val fileIntent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
+                addCategory(Intent.CATEGORY_OPENABLE)
+                type = "text/plain"
+            }
+            bookmarkImportFilePicker.launch(fileIntent)
+        }
+
     }
 
     private fun updateTimeEditText() {
@@ -101,7 +140,56 @@ class NewMeterEntryActivity : AppCompatActivity() {
                 || TextUtils.isEmpty(measurementTimeEditText.text)
     }
 
+    /**
+     * Parse lines based on pattern "HHmm ddMM XXX,X" into a collection of Meter entities,
+     * which then is returned to MainActivity to be saved in the repository,
+     * finishing the current activity
+     * @param contentAsString - The entire file content in a String representation
+     */
+    private fun parseEntities(contentAsString: String?) {
+        (application as ElectricPowerMeterApplication).applicationScope.launch {
+            val multiplyMetersIntent = Intent()
+            if (contentAsString != null) {
+                val textAsLines = contentAsString.lines()
+                Log.i(
+                    TAG,
+                    "parseEntities: text as lines: $textAsLines"
+                )
+                val entries = textAsLines.map { line ->
+                    val splitLine = line.split(" ")
+                    val rawTime = splitLine[0]
+                    val rawDate = splitLine[1]
+                    val rawValue = splitLine[2].replace(",", ".")
+                    val localDate = LocalDate.of(
+                        LocalDate.now().year,
+                        rawDate.substring(2).toInt(),
+                        rawDate.substring(0, 2).toInt()
+                    )
+                    val localTime = LocalTime.parse(rawTime, rawTimeFormatter)
+                    val value = BigDecimal(rawValue, MathContext.DECIMAL64).multiply(BigDecimal.TEN)
+                        .intValueExact()
+
+                    Meter(
+                        readingDate = LocalDateTime.of(localDate, localTime),
+                        meterReading = value
+                    )
+                }.toCollection(ArrayList())
+
+                multiplyMetersIntent.putParcelableArrayListExtra(MULTIPLE_REPLIES, entries)
+                setResult(RESULT_OK, multiplyMetersIntent)
+            } else {
+                Log.i(
+                    TAG,
+                    "parseEntities: no text was provided"
+                )
+                setResult(Activity.RESULT_CANCELED, multiplyMetersIntent)
+            }
+            finish()
+        }
+    }
+
     companion object {
         const val EXTRA_REPLY = "com.bairei.mobileelectricpowermeter.REPLY"
+        const val MULTIPLE_REPLIES = "com.bairei.mobileelectricpowermeter.MULTIPLE_REPLIES"
     }
 }
