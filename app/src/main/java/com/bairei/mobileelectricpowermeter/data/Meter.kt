@@ -26,16 +26,28 @@ data class Meter(
 
     fun asPrettyString(): String {
         return "${dateTimeFormatter.format(readingDate)} - ${
-            String.format(
-                "%.1f", meterReading.toBigDecimal(MathContext.DECIMAL64).divide(
-                    BigDecimal.TEN
-                )
+            meterReadingAsDecimalString()
+        }"
+    }
+
+    fun asRawString(): String {
+        return "${rawDateTimeFormatter.format(readingDate)} ${
+            meterReadingAsDecimalString().replace(
+                ".",
+                ","
             )
         }"
     }
 
+    private fun meterReadingAsDecimalString() = String.format(
+        "%.1f", meterReading.toBigDecimal(MathContext.DECIMAL64).divide(
+            BigDecimal.TEN
+        )
+    )
+
     companion object {
         private val dateTimeFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm")
+        private val rawDateTimeFormatter = DateTimeFormatter.ofPattern("HHmm ddMM")
     }
 
 }

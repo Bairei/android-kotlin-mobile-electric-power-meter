@@ -1,15 +1,20 @@
 package com.bairei.mobileelectricpowermeter
 
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
+import android.widget.Toast
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bairei.mobileelectricpowermeter.MeterListAdapter.MeterViewHolder
 import com.bairei.mobileelectricpowermeter.data.Meter
+import java.time.Duration
 
 class MeterListAdapter : ListAdapter<Meter, MeterViewHolder>(MetersComparator()) {
 
@@ -28,13 +33,32 @@ class MeterListAdapter : ListAdapter<Meter, MeterViewHolder>(MetersComparator())
         }
     }
 
-    class MeterViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    class MeterViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView),
+        View.OnLongClickListener {
 
         private val meterItemView: TextView = itemView.findViewById(R.id.meterTextView)
         val deleteMeterButton: Button = itemView.findViewById(R.id.deleteMeterButton)
+        var meter: Meter? = null
 
         fun bind(meter: Meter?) {
+            this.meter = meter
             meterItemView.text = meter?.asPrettyString()
+            meterItemView.setOnLongClickListener(this)
+        }
+
+        override fun onLongClick(view: View): Boolean {
+            val clipboardManager: ClipboardManager =
+                view.context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+            val meterClip = ClipData.newPlainText("Raw Meter", meter?.asRawString())
+            clipboardManager.setPrimaryClip(meterClip)
+
+            Toast.makeText(
+                view.context,
+                "Raw representation copied to clipboard",
+                Toast.LENGTH_SHORT
+            ).show()
+
+            return true
         }
 
 
