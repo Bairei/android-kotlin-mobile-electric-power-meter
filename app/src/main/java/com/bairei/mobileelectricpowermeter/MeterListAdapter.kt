@@ -6,7 +6,6 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 import androidx.recyclerview.widget.DiffUtil
@@ -14,11 +13,8 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bairei.mobileelectricpowermeter.MeterListAdapter.MeterViewHolder
 import com.bairei.mobileelectricpowermeter.data.Meter
-import java.time.Duration
 
 class MeterListAdapter : ListAdapter<Meter, MeterViewHolder>(MetersComparator()) {
-
-    lateinit var listener: ItemRemovedListener
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MeterViewHolder {
         return MeterViewHolder.create(parent)
@@ -27,17 +23,12 @@ class MeterListAdapter : ListAdapter<Meter, MeterViewHolder>(MetersComparator())
     override fun onBindViewHolder(holder: MeterViewHolder, position: Int) {
         val current = getItem(position)
         holder.bind(current)
-
-        holder.deleteMeterButton.setOnClickListener { view ->
-            listener.onItemToRemoveClicked(current, position)
-        }
     }
 
     class MeterViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView),
         View.OnLongClickListener {
 
         private val meterItemView: TextView = itemView.findViewById(R.id.meterTextView)
-        val deleteMeterButton: Button = itemView.findViewById(R.id.deleteMeterButton)
         var meter: Meter? = null
 
         fun bind(meter: Meter?) {
@@ -82,10 +73,6 @@ class MeterListAdapter : ListAdapter<Meter, MeterViewHolder>(MetersComparator())
                     && oldItem.readingDate == newItem.readingDate
         }
 
-    }
-
-    interface ItemRemovedListener {
-        fun onItemToRemoveClicked(meter: Meter, position: Int)
     }
 
 }

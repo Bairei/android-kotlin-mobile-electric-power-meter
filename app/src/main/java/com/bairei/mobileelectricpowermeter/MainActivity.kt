@@ -5,16 +5,21 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.viewModels
-import androidx.lifecycle.lifecycleScope
+import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bairei.mobileelectricpowermeter.data.Meter
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import kotlinx.coroutines.launch
+import com.google.android.material.snackbar.Snackbar
 
-class MainActivity : AppCompatActivity(), MeterListAdapter.ItemRemovedListener {
+class MainActivity : AppCompatActivity() {
 
     private val newMeterActivityRequestCode = 1
+
+    private lateinit var adapter: MeterListAdapter
+    private lateinit var constraintLayout: ConstraintLayout
+    private lateinit var recyclerView: RecyclerView
 
     private val meterViewModel: MeterViewModel by viewModels {
         MeterViewModelFactory((application as ElectricPowerMeterApplication).repository)
@@ -24,9 +29,9 @@ class MainActivity : AppCompatActivity(), MeterListAdapter.ItemRemovedListener {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val recyclerView = findViewById<RecyclerView>(R.id.recycler_view)
-        val adapter = MeterListAdapter()
-        adapter.listener = this
+        constraintLayout = findViewById(R.id.constraintLayout)
+        recyclerView = findViewById(R.id.recycler_view)
+        adapter = MeterListAdapter()
         recyclerView.adapter = adapter
         recyclerView.layoutManager = LinearLayoutManager(this)
 
@@ -40,6 +45,9 @@ class MainActivity : AppCompatActivity(), MeterListAdapter.ItemRemovedListener {
             val intent = Intent(this@MainActivity, NewMeterEntryActivity::class.java)
             startActivityForResult(intent, newMeterActivityRequestCode)
         }
+
+        val itemTouchHelper = swipeOnDelete()
+        itemTouchHelper.attachToRecyclerView(recyclerView)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -60,7 +68,26 @@ class MainActivity : AppCompatActivity(), MeterListAdapter.ItemRemovedListener {
         }
     }
 
-    override fun onItemToRemoveClicked(meter: Meter, position: Int) {
-        meterViewModel.delete(meter)
+    private fun swipeOnDelete(): ItemTouchHelper {
+        val swipeItemCallback = object : DeleteSwipeItemCallback(this) {
+
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                val position = viewHolder.adapterPosition
+                val itemToDelete = adapter.currentList[position]
+
+                meterViewModel.delete(itemToDelete)
+                Snackbar.make(constraintLayout, R.string.meter_deleted, Snackbar.LENGTH_LONG)
+                    .setAction(
+                        R.string.undo
+                    ) {
+                        meterViewModel.insert(itemToDelete)
+                        recyclerView.layoutManager?.scrollToPosition(position)
+                    }
+                    .show()
+            }
+        }
+        return ItemTouchHelper(swipeItemCallback)
     }
+
+
 }
