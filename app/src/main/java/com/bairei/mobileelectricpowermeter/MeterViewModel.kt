@@ -1,6 +1,10 @@
 package com.bairei.mobileelectricpowermeter
 
-import androidx.lifecycle.*
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.asLiveData
+import androidx.lifecycle.viewModelScope
 import com.bairei.mobileelectricpowermeter.data.Meter
 import com.bairei.mobileelectricpowermeter.data.MeterRepository
 import kotlinx.coroutines.launch
@@ -14,8 +18,8 @@ class MeterViewModel(private val meterRepository: MeterRepository) : ViewModel()
     val allMeters: LiveData<List<Meter>> = meterRepository.allMeterReadings.asLiveData()
 
     // Launching a new coroutine to insert the data in a non-blocking way
-    fun insert(meter: Meter) = viewModelScope.launch {
-        meterRepository.insert(meter)
+    fun insert(vararg meter: Meter) = viewModelScope.launch {
+        meterRepository.insert(*meter)
     }
 
     fun delete(meter: Meter) = viewModelScope.launch {
@@ -31,5 +35,4 @@ class MeterViewModelFactory(private val repository: MeterRepository) : ViewModel
         }
         throw IllegalAccessException("Unknown ViewModel class: ${modelClass.name}")
     }
-
 }

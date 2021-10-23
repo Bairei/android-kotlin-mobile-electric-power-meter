@@ -9,4 +9,7 @@
     <string name="upload_multiple_entries">Upload Multiple Entries</string>
     <string name="meter_deleted">Meter entry successfully deleted</string>
     <string name="undo">UNDO</string>
+    <string name="meter_chart">Meter Chart</string>
+    <string name="meter_list">Meters</string>
+    <string name="unknown_tab">Unknown tab #%1$d</string>
 </resources>

@@ -10,7 +10,6 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 
-
 abstract class DeleteSwipeItemCallback(context: Context) : ItemTouchHelper.Callback() {
 
     private val colorBackground: ColorDrawable = ColorDrawable(Color.RED)
@@ -79,5 +78,4 @@ abstract class DeleteSwipeItemCallback(context: Context) : ItemTouchHelper.Callb
         colorBackground.draw(c)
         deleteIcon.draw(c)
     }
-
 }

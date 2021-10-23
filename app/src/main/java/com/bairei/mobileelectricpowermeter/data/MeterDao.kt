@@ -5,8 +5,8 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy.REPLACE
 import androidx.room.Query
-import kotlinx.coroutines.flow.Flow
 import java.time.LocalDateTime
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface MeterDao {
@@ -17,7 +17,7 @@ interface MeterDao {
     suspend fun findAllSuspend(): List<Meter>
 
     @Insert(onConflict = REPLACE)
-    suspend fun insert(meter: Meter)
+    suspend fun insert(vararg meter: Meter)
 
     @Delete
     suspend fun deleteByMeterEntry(meter: Meter)

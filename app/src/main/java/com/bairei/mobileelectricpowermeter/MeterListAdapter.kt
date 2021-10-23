@@ -25,7 +25,8 @@ class MeterListAdapter : ListAdapter<Meter, MeterViewHolder>(MetersComparator())
         holder.bind(current)
     }
 
-    class MeterViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView),
+    class MeterViewHolder(itemView: View) :
+        RecyclerView.ViewHolder(itemView),
         View.OnLongClickListener {
 
         private val meterItemView: TextView = itemView.findViewById(R.id.meterTextView)
@@ -52,7 +53,6 @@ class MeterListAdapter : ListAdapter<Meter, MeterViewHolder>(MetersComparator())
             return true
         }
 
-
         companion object {
             fun create(parent: ViewGroup): MeterViewHolder {
                 val view = LayoutInflater.from(parent.context)
@@ -60,7 +60,6 @@ class MeterListAdapter : ListAdapter<Meter, MeterViewHolder>(MetersComparator())
                 return MeterViewHolder(view)
             }
         }
-
     }
 
     class MetersComparator : DiffUtil.ItemCallback<Meter>() {
@@ -69,10 +68,8 @@ class MeterListAdapter : ListAdapter<Meter, MeterViewHolder>(MetersComparator())
         }
 
         override fun areContentsTheSame(oldItem: Meter, newItem: Meter): Boolean {
-            return oldItem.meterReading == newItem.meterReading
-                    && oldItem.readingDate == newItem.readingDate
+            return oldItem.meterReading == newItem.meterReading &&
+                oldItem.readingDate == newItem.readingDate
         }
-
     }
-
 }

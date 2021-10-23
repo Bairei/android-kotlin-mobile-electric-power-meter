@@ -1,26 +1,24 @@
 package com.bairei.mobileelectricpowermeter
 
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Toast
+import androidx.activity.result.ActivityResult
+import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
 import androidx.activity.viewModels
-import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.recyclerview.widget.ItemTouchHelper
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
+import androidx.appcompat.app.AppCompatActivity
+import androidx.viewpager2.widget.ViewPager2
+import com.bairei.mobileelectricpowermeter.NewMeterEntryActivity.Companion.EXTRA_REPLY
+import com.bairei.mobileelectricpowermeter.NewMeterEntryActivity.Companion.MULTIPLE_REPLIES
 import com.bairei.mobileelectricpowermeter.data.Meter
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import com.google.android.material.snackbar.Snackbar
+import com.google.android.material.tabs.TabLayout
+import com.google.android.material.tabs.TabLayoutMediator
 
 class MainActivity : AppCompatActivity() {
 
-    private val newMeterActivityRequestCode = 1
-
-    private lateinit var adapter: MeterListAdapter
-    private lateinit var constraintLayout: ConstraintLayout
-    private lateinit var recyclerView: RecyclerView
-
+    private val createNewEntry =
+        registerForActivityResult(StartActivityForResult(), this::handleNewEntryResult)
     private val meterViewModel: MeterViewModel by viewModels {
         MeterViewModelFactory((application as ElectricPowerMeterApplication).repository)
     }
@@ -29,65 +27,41 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        constraintLayout = findViewById(R.id.constraintLayout)
-        recyclerView = findViewById(R.id.recycler_view)
-        adapter = MeterListAdapter()
-        recyclerView.adapter = adapter
-        recyclerView.layoutManager = LinearLayoutManager(this)
-
-        meterViewModel.allMeters.observe(this, { meters ->
-            // Update the cached copy of the words in the adapter.
-            meters?.let { adapter.submitList(it) }
-        })
+        val fragmentCollectionAdapter = FragmentCollectionAdapter(supportFragmentManager, lifecycle)
+        val viewPager = findViewById<ViewPager2>(R.id.viewPager2)
+        val tabLayout = findViewById<TabLayout>(R.id.tab_layout)
+        viewPager.adapter = fragmentCollectionAdapter
+        // [bkwapisz] disable swiping pages to not delete meter entries by mistake
+        viewPager.isUserInputEnabled = false
+        TabLayoutMediator(tabLayout, viewPager) { tab, position ->
+            when (position) {
+                0 -> tab.text = getString(R.string.meter_list)
+                1 -> tab.text = getString(R.string.meter_chart)
+                else -> tab.text = getString(R.string.unknown_tab, position)
+            }
+        }.attach()
 
         val fab = findViewById<FloatingActionButton>(R.id.fab)
         fab.setOnClickListener {
             val intent = Intent(this@MainActivity, NewMeterEntryActivity::class.java)
-            startActivityForResult(intent, newMeterActivityRequestCode)
+            createNewEntry.launch(intent)
         }
-
-        val itemTouchHelper = swipeOnDelete()
-        itemTouchHelper.attachToRecyclerView(recyclerView)
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-
-        if (requestCode == newMeterActivityRequestCode && resultCode == RESULT_OK) {
-            if (data?.getParcelableExtra<Meter>(NewMeterEntryActivity.EXTRA_REPLY) != null) {
-                data.getParcelableExtra<Meter>(NewMeterEntryActivity.EXTRA_REPLY)?.let {
+    private fun handleNewEntryResult(result: ActivityResult) {
+        if (result.resultCode == RESULT_OK && result.data != null) {
+            val data = result.data!!
+            if (data.getParcelableExtra<Meter>(EXTRA_REPLY) != null) {
+                data.getParcelableExtra<Meter>(EXTRA_REPLY)!!.let {
                     meterViewModel.insert(it)
                 }
-            } else if (data?.getParcelableArrayListExtra<Meter>(NewMeterEntryActivity.MULTIPLE_REPLIES) != null) {
+            } else if (data.getParcelableArrayListExtra<Meter>(MULTIPLE_REPLIES) != null) {
                 val entries =
-                    data.getParcelableArrayListExtra<Meter>(NewMeterEntryActivity.MULTIPLE_REPLIES)
-                entries?.forEach { meterViewModel.insert(it) }
+                    data.getParcelableArrayListExtra<Meter>(MULTIPLE_REPLIES)!!
+                meterViewModel.insert(*entries.toTypedArray())
             }
         } else {
             Toast.makeText(applicationContext, R.string.invalid_not_saved, Toast.LENGTH_LONG).show()
         }
     }
-
-    private fun swipeOnDelete(): ItemTouchHelper {
-        val swipeItemCallback = object : DeleteSwipeItemCallback(this) {
-
-            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                val position = viewHolder.adapterPosition
-                val itemToDelete = adapter.currentList[position]
-
-                meterViewModel.delete(itemToDelete)
-                Snackbar.make(constraintLayout, R.string.meter_deleted, Snackbar.LENGTH_LONG)
-                    .setAction(
-                        R.string.undo
-                    ) {
-                        meterViewModel.insert(itemToDelete)
-                        recyclerView.layoutManager?.scrollToPosition(position)
-                    }
-                    .show()
-            }
-        }
-        return ItemTouchHelper(swipeItemCallback)
-    }
-
-
 }

@@ -4,12 +4,12 @@ import android.os.Parcelable
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import kotlinx.parcelize.Parcelize
 import java.math.BigDecimal
 import java.math.MathContext
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
-import java.util.*
+import java.util.UUID
+import kotlinx.parcelize.Parcelize
 
 @Parcelize
 @Entity(tableName = "meter")
@@ -25,22 +25,21 @@ data class Meter(
 ) : Parcelable {
 
     fun asPrettyString(): String {
-        return "${dateTimeFormatter.format(readingDate)} - ${
-            meterReadingAsDecimalString()
-        }"
+        return "${dateTimeFormatter.format(readingDate)} - ${meterReadingAsDecimalString()} kWh"
     }
 
     fun asRawString(): String {
         return "${rawDateTimeFormatter.format(readingDate)} ${
-            meterReadingAsDecimalString().replace(
-                ".",
-                ","
-            )
+        meterReadingAsDecimalString().replace(
+            ".",
+            ","
+        )
         }"
     }
 
     private fun meterReadingAsDecimalString() = String.format(
-        "%.1f", meterReading.toBigDecimal(MathContext.DECIMAL64).divide(
+        "%.1f",
+        meterReading.toBigDecimal(MathContext.DECIMAL64).divide(
             BigDecimal.TEN
         )
     )
@@ -49,5 +48,4 @@ data class Meter(
         private val dateTimeFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm")
         private val rawDateTimeFormatter = DateTimeFormatter.ofPattern("HHmm ddMM")
     }
-
 }

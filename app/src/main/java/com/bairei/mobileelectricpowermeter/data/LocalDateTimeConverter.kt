@@ -4,7 +4,6 @@ import androidx.room.TypeConverter
 import java.sql.Timestamp
 import java.time.LocalDateTime
 import java.time.ZoneId
-import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 
 class LocalDateTimeConverter {
@@ -22,5 +21,4 @@ class LocalDateTimeConverter {
     fun localDateTimeToTimestamp(date: LocalDateTime?): Long? {
         return if (date != null) Timestamp.valueOf(dateTimeFormatter.format(date)).time else null
     }
-
 }
