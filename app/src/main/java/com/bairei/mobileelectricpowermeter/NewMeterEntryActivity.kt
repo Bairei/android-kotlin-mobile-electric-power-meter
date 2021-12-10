@@ -19,6 +19,8 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
+import java.util.*
+import kotlin.collections.ArrayList
 
 class NewMeterEntryActivity : AppCompatActivity() {
 
@@ -46,7 +48,9 @@ class NewMeterEntryActivity : AppCompatActivity() {
 
         val onDateSetListener =
             DatePickerDialog.OnDateSetListener { _, year, monthOfYear, dayOfMonth ->
-                dateOfMeasurement = LocalDate.of(year, monthOfYear, dayOfMonth)
+                // monthOfYear + 1, since LocalDate.of accepts values 1-12 for months, 
+                // meanwhile OnDateSetListener provides  0-11 (Calendar.MONTH) format
+                dateOfMeasurement = LocalDate.of(year, monthOfYear + 1, dayOfMonth)
                 updateDateEditText()
             }
 
@@ -60,7 +64,8 @@ class NewMeterEntryActivity : AppCompatActivity() {
                 this,
                 onDateSetListener,
                 dateOfMeasurement.year,
-                dateOfMeasurement.monthValue,
+                // monthOfYear -1, since DatePickerDialog required 0-11 (Calendar.MONTH) format
+                dateOfMeasurement.monthValue - 1,
                 dateOfMeasurement.dayOfMonth
             ).show()
         }
