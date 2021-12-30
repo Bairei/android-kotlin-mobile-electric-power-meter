@@ -10,10 +10,10 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface MeterDao {
-    @Query("SELECT * FROM meter")
+    @Query("SELECT * FROM meter ORDER BY reading_date ASC")
     fun findAll(): Flow<List<Meter>>
 
-    @Query("SELECT * FROM meter")
+    @Query("SELECT * FROM meter ORDER BY reading_date ASC")
     suspend fun findAllSuspend(): List<Meter>
 
     @Insert(onConflict = REPLACE)
@@ -22,6 +22,6 @@ interface MeterDao {
     @Delete
     suspend fun deleteByMeterEntry(meter: Meter)
 
-    @Query("SELECT * FROM meter WHERE reading_date BETWEEN :dateFrom AND :dateTo")
+    @Query("SELECT * FROM meter WHERE reading_date BETWEEN :dateFrom AND :dateTo ORDER BY reading_date ASC")
     fun findByReadingDateBetween(dateFrom: LocalDateTime, dateTo: LocalDateTime): Flow<List<Meter>>
 }
