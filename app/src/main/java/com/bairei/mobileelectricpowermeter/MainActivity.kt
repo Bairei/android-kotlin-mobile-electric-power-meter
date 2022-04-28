@@ -8,6 +8,7 @@ import androidx.activity.result.contract.ActivityResultContracts.StartActivityFo
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.viewpager2.widget.ViewPager2
+import com.bairei.mobileelectricpowermeter.NewMeterEntryActivity.Companion.EXPORT_ENTRIES
 import com.bairei.mobileelectricpowermeter.NewMeterEntryActivity.Companion.EXTRA_REPLY
 import com.bairei.mobileelectricpowermeter.NewMeterEntryActivity.Companion.MULTIPLE_REPLIES
 import com.bairei.mobileelectricpowermeter.data.Meter
@@ -51,17 +52,24 @@ class MainActivity : AppCompatActivity() {
     private fun handleNewEntryResult(result: ActivityResult) {
         if (result.resultCode == RESULT_OK && result.data != null) {
             val data = result.data!!
-            if (data.getParcelableExtra<Meter>(EXTRA_REPLY) != null) {
-                data.getParcelableExtra<Meter>(EXTRA_REPLY)!!.let {
-                    meterViewModel.insert(it)
+            when {
+                data.getParcelableExtra<Meter>(EXTRA_REPLY) != null -> {
+                    data.getParcelableExtra<Meter>(EXTRA_REPLY)!!.let {
+                        meterViewModel.insert(it)
+                    }
                 }
-            } else if (data.getParcelableArrayListExtra<Meter>(MULTIPLE_REPLIES) != null) {
-                val entries =
-                    data.getParcelableArrayListExtra<Meter>(MULTIPLE_REPLIES)!!
-                meterViewModel.insert(*entries.toTypedArray())
+                data.getParcelableArrayListExtra<Meter>(MULTIPLE_REPLIES) != null -> {
+                    val entries =
+                        data.getParcelableArrayListExtra<Meter>(MULTIPLE_REPLIES)!!
+                    meterViewModel.insert(*entries.toTypedArray())
+                }
+                data.getSerializableExtra(EXPORT_ENTRIES) != null -> {
+                    // TODO [bkwapisz] log that data has been exported?
+                }
             }
         } else {
-            Toast.makeText(applicationContext, R.string.invalid_not_saved, Toast.LENGTH_LONG).show()
+            Toast.makeText(applicationContext, R.string.invalid_not_saved, Toast.LENGTH_LONG)
+                .show()
         }
     }
 }

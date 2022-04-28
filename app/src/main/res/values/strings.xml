@@ -12,4 +12,5 @@
     <string name="meter_chart">Meter Chart</string>
     <string name="meter_list">Meters</string>
     <string name="unknown_tab">Unknown tab #%1$d</string>
+    <string name="export_entries">Export to file</string>
 </resources>
