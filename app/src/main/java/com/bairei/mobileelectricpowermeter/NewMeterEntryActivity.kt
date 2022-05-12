@@ -14,7 +14,6 @@ import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
 import androidx.appcompat.app.AppCompatActivity
 import com.bairei.mobileelectricpowermeter.data.Meter
-import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import java.io.FileOutputStream
 import java.math.BigDecimal
@@ -265,7 +264,7 @@ class NewMeterEntryActivity : AppCompatActivity() {
         Log.i(TAG, "Exporting data...")
         val meterData =
             (application as ElectricPowerMeterApplication).database.meterDao().findAllSuspend()
-        val outputJson = Gson().toJson(meterData)
+        val outputJson = gson.toJson(meterData)
         contentResolver.openFileDescriptor(uri, "w").use {
             FileOutputStream(it?.fileDescriptor).use {
                 it.write(outputJson.toByteArray())

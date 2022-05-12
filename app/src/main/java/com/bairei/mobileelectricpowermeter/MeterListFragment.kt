@@ -41,10 +41,10 @@ class MeterListFragment : Fragment() {
         recyclerView.adapter = adapter
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
 
-        meterViewModel.allMeters.observe(viewLifecycleOwner, { meters ->
+        meterViewModel.allMeters.observe(viewLifecycleOwner) { meters ->
             // Update the cached copy of the words in the adapter.
             meters?.let { adapter.submitList(it) }
-        })
+        }
 
         val itemTouchHelper = swipeOnDelete()
         itemTouchHelper.attachToRecyclerView(recyclerView)

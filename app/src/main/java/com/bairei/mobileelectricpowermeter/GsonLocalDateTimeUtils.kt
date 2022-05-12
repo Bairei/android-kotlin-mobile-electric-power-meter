@@ -15,11 +15,12 @@ import java.time.format.DateTimeFormatter
 val gson: Gson = GsonBuilder()
     .registerTypeAdapter(LocalDateTime::class.java, GsonLocalDateTimeDeserializer())
     .registerTypeAdapter(LocalDateTime::class.java, GsonLocalDateTimeSerializer())
+    .setPrettyPrinting()
     .create()
 
 private val dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")
 
-class GsonLocalDateTimeDeserializer() : JsonDeserializer<LocalDateTime> {
+class GsonLocalDateTimeDeserializer : JsonDeserializer<LocalDateTime> {
     override fun deserialize(
         json: JsonElement?,
         typeOfT: Type?,
@@ -27,7 +28,7 @@ class GsonLocalDateTimeDeserializer() : JsonDeserializer<LocalDateTime> {
     ): LocalDateTime = LocalDateTime.parse(json?.asString, dateTimeFormatter)
 }
 
-class GsonLocalDateTimeSerializer() : JsonSerializer<LocalDateTime> {
+class GsonLocalDateTimeSerializer : JsonSerializer<LocalDateTime> {
     override fun serialize(
         src: LocalDateTime?,
         typeOfSrc: Type?,
