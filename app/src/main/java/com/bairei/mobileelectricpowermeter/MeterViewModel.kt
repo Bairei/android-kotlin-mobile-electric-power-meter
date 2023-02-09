@@ -31,6 +31,7 @@ class MeterViewModel(private val meterRepository: MeterRepository) : ViewModel()
 
 class MeterViewModelFactory(private val repository: MeterRepository) : ViewModelProvider.Factory {
 
+    @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(MeterViewModel::class.java)) {
             return MeterViewModel(repository) as T
