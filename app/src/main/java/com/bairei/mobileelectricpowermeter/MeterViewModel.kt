@@ -15,6 +15,8 @@ class MeterViewModel(private val meterRepository: MeterRepository) : ViewModel()
     // - We can put an observer on the data (instead of polling for changes) and only update the
     //   the UI when the data actually changes.
     // - Repository is completely separated from the UI through the ViewModel.
+    val latestMeters: LiveData<List<Meter>> = meterRepository.latest30MeterReadings.asLiveData()
+
     val allMeters: LiveData<List<Meter>> = meterRepository.allMeterReadings.asLiveData()
 
     // Launching a new coroutine to insert the data in a non-blocking way

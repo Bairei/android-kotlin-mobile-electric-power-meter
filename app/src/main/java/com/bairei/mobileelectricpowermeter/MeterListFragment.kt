@@ -41,7 +41,7 @@ class MeterListFragment : Fragment() {
         recyclerView.adapter = adapter
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
 
-        meterViewModel.allMeters.observe(viewLifecycleOwner) { meters ->
+        meterViewModel.latestMeters.observe(viewLifecycleOwner) { meters ->
             // Update the cached copy of the words in the adapter.
             meters?.let { adapter.submitList(it) }
         }
@@ -61,7 +61,8 @@ class MeterListFragment : Fragment() {
                 Snackbar.make(requireView(), R.string.meter_deleted, Snackbar.LENGTH_LONG)
                     .setAction(R.string.undo) {
                         meterViewModel.insert(itemToDelete)
-                        recyclerView.layoutManager?.scrollToPosition(position)
+                        recyclerView.layoutManager
+                            ?.scrollToPosition(if (position - 1 < 0) 0 else position - 1)
                     }.show()
             }
         }

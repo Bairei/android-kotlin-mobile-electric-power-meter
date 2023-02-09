@@ -7,12 +7,12 @@ plugins {
 }
 
 android {
-    compileSdk 31
+    compileSdk 33
 
     defaultConfig {
         applicationId "com.bairei.mobileelectricpowermeter"
         minSdk 30
-        targetSdk 31
+        targetSdk 33
         versionCode 1
         versionName "1.0"
 
@@ -36,7 +36,7 @@ android {
 }
 
 dependencies {
-    implementation "androidx.appcompat:appcompat:$rootProject.appCompatVersion"
+    implementation "androidx.appcompat:appcompat:$appCompatVersion"
     implementation "androidx.activity:activity-ktx:$rootProject.activityVersion"
     implementation "com.google.code.gson:gson:$rootProject.gsonVersion"
 
@@ -60,6 +60,7 @@ dependencies {
     // UI
     implementation "androidx.constraintlayout:constraintlayout:$rootProject.constraintLayoutVersion"
     implementation "com.google.android.material:material:$rootProject.materialVersion"
+    implementation "com.jjoe64:graphview:$rootProject.graphviewVersion"
 
     // Testing
     testImplementation "junit:junit:$rootProject.junitVersion"
