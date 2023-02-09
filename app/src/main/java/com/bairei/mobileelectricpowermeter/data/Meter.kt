@@ -24,9 +24,9 @@ data class Meter(
     val meterReading: Int
 ) : Parcelable {
 
-    fun asPrettyString(): String {
-        return "${dateTimeFormatter.format(readingDate)} - ${meterReadingAsDecimalString()} kWh"
-    }
+    fun prettyDate(): String = dateTimeFormatter.format(readingDate)
+
+    fun prettyReading(): String = "${meterReadingAsDecimalString()} kWh"
 
     fun asRawString(): String {
         return "${rawDateTimeFormatter.format(readingDate)} ${

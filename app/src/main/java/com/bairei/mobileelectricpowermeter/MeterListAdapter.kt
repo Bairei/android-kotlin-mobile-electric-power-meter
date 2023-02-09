@@ -29,13 +29,15 @@ class MeterListAdapter : ListAdapter<Meter, MeterViewHolder>(MetersComparator())
         RecyclerView.ViewHolder(itemView),
         View.OnLongClickListener {
 
-        private val meterItemView: TextView = itemView.findViewById(R.id.meterTextView)
+        private val meterDateTextView: TextView = itemView.findViewById(R.id.meterDateTextView)
+        private val meterValueTextView: TextView = itemView.findViewById(R.id.meterValueTextView)
         var meter: Meter? = null
 
         fun bind(meter: Meter?) {
             this.meter = meter
-            meterItemView.text = meter?.asPrettyString()
-            meterItemView.setOnLongClickListener(this)
+            meterDateTextView.text = meter?.prettyDate()
+            meterDateTextView.setOnLongClickListener(this)
+            meterValueTextView.text = meter?.prettyReading()
         }
 
         override fun onLongClick(view: View): Boolean {
